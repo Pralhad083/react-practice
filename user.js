@@ -1,54 +1,25 @@
-const mysql = require("mysql");
-const Promise = require("bluebird");
-
-Promise.promisifyAll(require("mysql/lib/Connection").prototype);
+const mysql = require("mysql2");
+const procss = require("process");
 
 const dbinfo = {
-  host: "localhost",
-  user: "root",
-  password: "cdac",
-  database: "project1",
+    host: "localhost",
+    user: "root",
+    password: "cdac",
+    database: "registration",
 };
 
-async function connCheck(){
-    
-    const connection = mysql.createConnection(dbinfo);
-    await connection.connectAsync();
+const connection= mysql.createConnection(dbinfo);
 
-    console.log("Connection Sucess");
+connection.connect();
 
-    await  connection.endAsync();
-}
+// let sql=`insert into loginDetails(username, password) values("pratik","Pratik89") `;
+// let sql =`update loginDetails set username="Prashant" where id=3 `;
 
-async function addUser(user) {
-    const connection = mysql.createConnection(dbinfo);
-    await connection.connectAsync();
-    console.log("Connection Sucess");
+const user = { username: procss.argv[2], password: procss.argv[3] };
+let sql = `INSERT INTO loginDetails (username, password) values ("${user.username}", "${user.password}")`;
 
-    let sql = `insert into user(username,password) values(?,?)`;
-    await connection.queryAsync(sql,[user.username, user.password]); 
-    await  connection.endAsync();
-    console.log('record added');
- }
+connection.query(sql);
 
- const user ={
-     username:'Pratik', password:'pratik090'
- }
+console.log("User Added");
 
-//  addUser(user);
-
-async function selectAllUser() {
-    const connection = mysql.createConnection(dbinfo);
-    await connection.connectAsync();
-    console.log("Connection Sucess");
-
-    let sql = `select * from user`;
-   const list= await connection.queryAsync(sql,[]); 
-    await  connection.endAsync();
-    console.log('record selected');
-    return list;
- }
-
-//selectAllUser();
-
-module.exports = { selectAllUser, addUser};
+connection.end();
